@@ -1,0 +1,517 @@
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Camera = Workspace.CurrentCamera
+
+if PlayerGui:FindFirstChild("AX") then
+    PlayerGui.AX:Destroy()
+end
+
+-- // NOTIFICATION \\ --
+local NotifGui = Instance.new("ScreenGui", PlayerGui)
+NotifGui.Name = "AXNotif"
+NotifGui.ResetOnSpawn = false
+
+local NotifLabel = Instance.new("TextLabel", NotifGui)
+NotifLabel.Size = UDim2.new(0, 300, 0, 50)
+NotifLabel.Position = UDim2.new(0.5, -150, 0.15, 0)
+NotifLabel.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+NotifLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+NotifLabel.Text = "Made By AXIOM"
+NotifLabel.Font = Enum.Font.SourceSansBold
+NotifLabel.TextSize = 20
+Instance.new("UICorner", NotifLabel)
+
+task.spawn(function()
+    task.wait(3)
+    pcall(function() NotifGui:Destroy() end)
+end)
+
+-- // MAIN GUI \\ --
+local ScreenGui = Instance.new("ScreenGui", PlayerGui)
+ScreenGui.Name = "AX"
+ScreenGui.ResetOnSpawn = false
+
+local ToggleBtn = Instance.new("TextButton", ScreenGui)
+ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Position = UDim2.new(0, 20, 0.35, 0)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleBtn.Text = "AX"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 50, 50)
+ToggleBtn.Font = Enum.Font.SourceSansBold
+ToggleBtn.TextSize = 16
+ToggleBtn.Active = true
+Instance.new("UICorner", ToggleBtn)
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 290, 0, 380)
+MainFrame.Position = UDim2.new(0.5, -145, 0.5, -190)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Active = true
+Instance.new("UICorner", MainFrame)
+
+local TitleBar = Instance.new("Frame", MainFrame)
+TitleBar.Size = UDim2.new(1, 0, 0, 32)
+TitleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TitleBar.Active = true
+Instance.new("UICorner", TitleBar)
+
+local TitleLabel = Instance.new("TextLabel", TitleBar)
+TitleLabel.Size = UDim2.new(1, -10, 1, 0)
+TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "AXIOM // ULTIMATE SUITE"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.TextSize = 12
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- // DRAGGABLE LOGIC \\ --
+local btnDragging, btnDragStart, btnMoved = false, nil, false
+ToggleBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        btnDragging = true
+        btnDragStart = input.Position
+        btnMoved = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and btnDragging then
+        local delta = input.Position - btnDragStart
+        if delta.Magnitude > 3 then btnMoved = true end
+        ToggleBtn.Position = UDim2.new(ToggleBtn.Position.X.Scale, ToggleBtn.Position.X.Offset + delta.X, ToggleBtn.Position.Y.Scale, ToggleBtn.Position.Y.Offset + delta.Y)
+        btnDragStart = input.Position
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        btnDragging = false
+    end
+end)
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    if not btnMoved then
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
+
+local frameDragging, frameDragStart, frameStartPos = false, nil, nil
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        frameDragging = true
+        frameDragStart = input.Position
+        frameStartPos = MainFrame.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and frameDragging then
+        local delta = input.Position - frameDragStart
+        MainFrame.Position = UDim2.new(frameStartPos.X.Scale, frameStartPos.X.Offset + delta.X, frameStartPos.Y.Scale, frameStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        frameDragging = false
+    end
+end)
+
+-- // SCROLLING CONTAINER \\ --
+local ScrollFrame = Instance.new("ScrollingFrame", MainFrame)
+ScrollFrame.Size = UDim2.new(1, -10, 1, -40)
+ScrollFrame.Position = UDim2.new(0, 5, 0, 36)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 760)
+ScrollFrame.ScrollBarThickness = 5
+ScrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+
+local yOffset = 5
+local function CreateButton(text, callback)
+    local button = Instance.new("TextButton", ScrollFrame)
+    button.Size = UDim2.new(0, 255, 0, 30)
+    button.Position = UDim2.new(0, 10, 0, yOffset)
+    button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    button.Text = text .. ": [ OFF ]"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Font = Enum.Font.SourceSansBold
+    button.TextSize = 12
+    Instance.new("UICorner", button)
+    
+    yOffset = yOffset + 34
+    local state = false
+    
+    button.MouseButton1Click:Connect(function()
+        state = not state
+        button.Text = text .. ": [ " .. (state and "ON" or "OFF") .. " ]"
+        button.BackgroundColor3 = state and Color3.fromRGB(80, 20, 20) or Color3.fromRGB(35, 35, 35)
+        pcall(function() callback(state) end)
+    end)
+end
+
+-- // FEATURE STATES \\ --
+local FarmPart, LockPart, CleanPart, DummyModel = nil, nil, nil, nil
+local farmActive, lockActive, cleanActive, dummyActive = false, false, false, false
+local nameEspActive, boxEspActive, tracerEspActive, skelEspActive = false, false, false, false
+
+CreateButton("Safe Platform Farm", function(on)
+    farmActive = on
+    if on then
+        FarmPart = Instance.new("Part", Workspace)
+        FarmPart.Size = Vector3.new(120, 5, 120)
+        FarmPart.Position = Vector3.new(0, 1500, 0)
+        FarmPart.Anchored = true
+        FarmPart.CanCollide = true
+    else
+        if FarmPart then FarmPart:Destroy() end
+    end
+end)
+
+CreateButton("Player Platform Lock", function(on)
+    lockActive = on
+    if on then
+        LockPart = Instance.new("Part", Workspace)
+        LockPart.Size = Vector3.new(120, 5, 120)
+        LockPart.Position = Vector3.new(5000, 1500, 5000)
+        LockPart.Anchored = true
+        LockPart.CanCollide = true
+    else
+        if LockPart then LockPart:Destroy() end
+    end
+end)
+
+CreateButton("Clean Solo Vacuum", function(on)
+    cleanActive = on
+    if on then
+        CleanPart = Instance.new("Part", Workspace)
+        CleanPart.Size = Vector3.new(100, 5, 100)
+        CleanPart.Position = Vector3.new(-5000, 1500, -5000)
+        CleanPart.Anchored = true
+        CleanPart.CanCollide = true
+    else
+        if CleanPart then CleanPart:Destroy() end
+    end
+end)
+
+CreateButton("Spawn Practice Dummy", function(on)
+    dummyActive = on
+    if on then
+        DummyModel = Instance.new("Model", Workspace)
+        DummyModel.Name = "AXDummy"
+        local hum = Instance.new("Humanoid", DummyModel)
+        local root = Instance.new("Part", DummyModel)
+        root.Name = "HumanoidRootPart"
+        root.Size = Vector3.new(2, 2, 1)
+        root.Position = Vector3.new(0, 1506, 0)
+        root.Transparency = 1
+        root.CanCollide = false
+        local torso = Instance.new("Part", DummyModel)
+        torso.Name = "Torso"
+        torso.Size = Vector3.new(2, 2, 1)
+        torso.Position = Vector3.new(0, 1506, 0)
+        torso.CanCollide = true
+        torso.Color = Color3.fromRGB(200, 50, 50)
+        DummyModel.PrimaryPart = root
+        DummyModel.Parent = Workspace
+    else
+        if DummyModel then DummyModel:Destroy() end
+    end
+end)
+
+CreateButton("Name ESP", function(on) nameEspActive = on end)
+CreateButton("Box ESP", function(on) boxEspActive = on end)
+CreateButton("Tracer ESP", function(on) tracerEspActive = on end)
+CreateButton("Skeleton ESP", function(on) skelEspActive = on end)
+
+-- // SPECTATE PANEL \\ --
+local SpectateFrame = Instance.new("Frame", ScrollFrame)
+SpectateFrame.Size = UDim2.new(0, 255, 0, 80)
+SpectateFrame.Position = UDim2.new(0, 10, 0, yOffset)
+SpectateFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+Instance.new("UICorner", SpectateFrame)
+yOffset = yOffset + 86
+
+local SpectateLabel = Instance.new("TextLabel", SpectateFrame)
+SpectateLabel.Size = UDim2.new(1, -10, 0, 18)
+SpectateLabel.Position = UDim2.new(0, 5, 0, 2)
+SpectateLabel.BackgroundTransparency = 1
+SpectateLabel.Text = "Spectating: None"
+SpectateLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+SpectateLabel.Font = Enum.Font.SourceSansBold
+SpectateLabel.TextSize = 11
+SpectateLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local SpectateBtn = Instance.new("TextButton", SpectateFrame)
+SpectateBtn.Size = UDim2.new(0, 118, 0, 25)
+SpectateBtn.Position = UDim2.new(0, 5, 0, 22)
+SpectateBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+SpectateBtn.Text = "Select Player"
+SpectateBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpectateBtn.Font = Enum.Font.SourceSansBold
+SpectateBtn.TextSize = 11
+Instance.new("UICorner", SpectateBtn)
+
+local SpectateRefresh = Instance.new("TextButton", SpectateFrame)
+SpectateRefresh.Size = UDim2.new(0, 118, 0, 25)
+SpectateRefresh.Position = UDim2.new(0, 127, 0, 22)
+SpectateRefresh.BackgroundColor3 = Color3.fromRGB(30, 60, 40)
+SpectateRefresh.Text = "Refresh"
+SpectateRefresh.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpectateRefresh.Font = Enum.Font.SourceSansBold
+SpectateRefresh.TextSize = 11
+Instance.new("UICorner", SpectateRefresh)
+
+local SpectateStop = Instance.new("TextButton", SpectateFrame)
+SpectateStop.Size = UDim2.new(1, -10, 0, 22)
+SpectateStop.Position = UDim2.new(0, 5, 0, 50)
+SpectateStop.BackgroundColor3 = Color3.fromRGB(80, 30, 30)
+SpectateStop.Text = "Stop Spectating"
+SpectateStop.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpectateStop.Font = Enum.Font.SourceSansBold
+SpectateStop.TextSize = 11
+Instance.new("UICorner", SpectateStop)
+
+-- // BRING PLATFORM PANEL \\ --
+local BringFrame = Instance.new("Frame", ScrollFrame)
+BringFrame.Size = UDim2.new(0, 255, 0, 80)
+BringFrame.Position = UDim2.new(0, 10, 0, yOffset)
+BringFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+Instance.new("UICorner", BringFrame)
+yOffset = yOffset + 86
+
+local BringLabel = Instance.new("TextLabel", BringFrame)
+BringLabel.Size = UDim2.new(1, -10, 0, 18)
+BringLabel.Position = UDim2.new(0, 5, 0, 2)
+BringLabel.BackgroundTransparency = 1
+BringLabel.Text = "Bring Target: None"
+BringLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+BringLabel.Font = Enum.Font.SourceSansBold
+BringLabel.TextSize = 11
+BringLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local BringSelect = Instance.new("TextButton", BringFrame)
+BringSelect.Size = UDim2.new(0, 118, 0, 25)
+BringSelect.Position = UDim2.new(0, 5, 0, 22)
+BringSelect.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+BringSelect.Text = "Select Target"
+BringSelect.TextColor3 = Color3.fromRGB(255, 255, 255)
+BringSelect.Font = Enum.Font.SourceSansBold
+BringSelect.TextSize = 11
+Instance.new("UICorner", BringSelect)
+
+local BringRefresh = Instance.new("TextButton", BringFrame)
+BringRefresh.Size = UDim2.new(0, 118, 0, 25)
+BringRefresh.Position = UDim2.new(0, 127, 0, 22)
+BringRefresh.BackgroundColor3 = Color3.fromRGB(30, 60, 40)
+BringRefresh.Text = "Refresh"
+BringRefresh.TextColor3 = Color3.fromRGB(255, 255, 255)
+BringRefresh.Font = Enum.Font.SourceSansBold
+BringRefresh.TextSize = 11
+Instance.new("UICorner", BringRefresh)
+
+local BringToggle = Instance.new("TextButton", BringFrame)
+BringToggle.Size = UDim2.new(1, -10, 0, 22)
+BringToggle.Position = UDim2.new(0, 5, 0, 50)
+BringToggle.BackgroundColor3 = Color3.fromRGB(60, 20, 60)
+BringToggle.Text = "Bring Sky Platform: [ OFF ]"
+BringToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+BringToggle.Font = Enum.Font.SourceSansBold
+BringToggle.TextSize = 11
+Instance.new("UICorner", BringToggle)
+
+-- // GOTO PLAYER PANEL \\ --
+local GotoFrame = Instance.new("Frame", ScrollFrame)
+GotoFrame.Size = UDim2.new(0, 255, 0, 80)
+GotoFrame.Position = UDim2.new(0, 10, 0, yOffset)
+GotoFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+Instance.new("UICorner", GotoFrame)
+yOffset = yOffset + 86
+
+local GotoLabel = Instance.new("TextLabel", GotoFrame)
+GotoLabel.Size = UDim2.new(1, -10, 0, 18)
+GotoLabel.Position = UDim2.new(0, 5, 0, 2)
+GotoLabel.BackgroundTransparency = 1
+GotoLabel.Text = "Goto Target: None"
+GotoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+GotoLabel.Font = Enum.Font.SourceSansBold
+GotoLabel.TextSize = 11
+GotoLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local GotoSelect = Instance.new("TextButton", GotoFrame)
+GotoSelect.Size = UDim2.new(0, 118, 0, 25)
+GotoSelect.Position = UDim2.new(0, 5, 0, 22)
+GotoSelect.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+GotoSelect.Text = "Select Target"
+GotoSelect.TextColor3 = Color3.fromRGB(255, 255, 255)
+GotoSelect.Font = Enum.Font.SourceSansBold
+GotoSelect.TextSize = 11
+Instance.new("UICorner", GotoSelect)
+
+local GotoRefresh = Instance.new("TextButton", GotoFrame)
+GotoRefresh.Size = UDim2.new(0, 118, 0, 25)
+GotoRefresh.Position = UDim2.new(0, 127, 0, 22)
+GotoRefresh.BackgroundColor3 = Color3.fromRGB(30, 60, 40)
+GotoRefresh.Text = "Refresh"
+GotoRefresh.TextColor3 = Color3.fromRGB(255, 255, 255)
+GotoRefresh.Font = Enum.Font.SourceSansBold
+GotoRefresh.TextSize = 11
+Instance.new("UICorner", GotoRefresh)
+
+local GotoAction = Instance.new("TextButton", GotoFrame)
+GotoAction.Size = UDim2.new(1, -10, 0, 22)
+GotoAction.Position = UDim2.new(0, 5, 0, 50)
+GotoAction.BackgroundColor3 = Color3.fromRGB(20, 60, 80)
+GotoAction.Text = "Teleport to Player"
+GotoAction.TextColor3 = Color3.fromRGB(255, 255, 255)
+GotoAction.Font = Enum.Font.SourceSansBold
+GotoAction.TextSize = 11
+Instance.new("UICorner", GotoAction)
+
+-- // FLING PLAYER PANEL \\ --
+local FlingFrame = Instance.new("Frame", ScrollFrame)
+FlingFrame.Size = UDim2.new(0, 255, 0, 80)
+FlingFrame.Position = UDim2.new(0, 10, 0, yOffset)
+FlingFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+Instance.new("UICorner", FlingFrame)
+
+local FlingLabel = Instance.new("TextLabel", FlingFrame)
+FlingLabel.Size = UDim2.new(1, -10, 0, 18)
+FlingLabel.Position = UDim2.new(0, 5, 0, 2)
+FlingLabel.BackgroundTransparency = 1
+FlingLabel.Text = "Fling Target: None"
+FlingLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+FlingLabel.Font = Enum.Font.SourceSansBold
+FlingLabel.TextSize = 11
+FlingLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local FlingSelect = Instance.new("TextButton", FlingFrame)
+FlingSelect.Size = UDim2.new(0, 118, 0, 25)
+FlingSelect.Position = UDim2.new(0, 5, 0, 22)
+FlingSelect.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+FlingSelect.Text = "Select Target"
+FlingSelect.TextColor3 = Color3.fromRGB(255, 255, 255)
+FlingSelect.Font = Enum.Font.SourceSansBold
+FlingSelect.TextSize = 11
+Instance.new("UICorner", FlingSelect)
+
+local FlingRefresh = Instance.new("TextButton", FlingFrame)
+FlingRefresh.Size = UDim2.new(0, 118, 0, 25)
+FlingRefresh.Position = UDim2.new(0, 127, 0, 22)
+FlingRefresh.BackgroundColor3 = Color3.fromRGB(30, 60, 40)
+FlingRefresh.Text = "Refresh"
+FlingRefresh.TextColor3 = Color3.fromRGB(255, 255, 255)
+FlingRefresh.Font = Enum.Font.SourceSansBold
+FlingRefresh.TextSize = 11
+Instance.new("UICorner", FlingRefresh)
+
+local FlingAction = Instance.new("TextButton", FlingFrame)
+FlingAction.Size = UDim2.new(1, -10, 0, 22)
+FlingAction.Position = UDim2.new(0, 5, 0, 50)
+FlingAction.BackgroundColor3 = Color3.fromRGB(80, 60, 20)
+FlingAction.Text = "Fling Player: [ OFF ]"
+FlingAction.TextColor3 = Color3.fromRGB(255, 255, 255)
+FlingAction.Font = Enum.Font.SourceSansBold
+FlingAction.TextSize = 11
+Instance.new("UICorner", FlingAction)
+
+-- // PLAYER SELECTOR & FEATURE LOGIC \\ --
+local playerList, sIdx, bIdx, gIdx, fIdx = {}, 1, 1, 1, 1
+local sTarget, bTarget, gTarget, fTarget = nil, nil, nil, nil
+local bringPlt, bringActive, flingActive = nil, false, false
+
+local function updatePlayerList()
+    playerList = {}
+    for _, v in ipairs(Players:GetPlayers()) do
+        if v ~= LocalPlayer then
+            table.insert(playerList, v)
+        end
+    end
+end
+
+local function handleSelect(typeStr)
+    updatePlayerList()
+    if #playerList == 0 then return end
+    if typeStr == "s" then
+        if sIdx > #playerList then sIdx = 1 end
+        sTarget = playerList[sIdx]
+        SpectateBtn.Text = sTarget.Name
+        SpectateLabel.Text = "Spectating: " .. sTarget.Name
+        sIdx = sIdx + 1
+    elseif typeStr == "b" then
+        if bIdx > #playerList then bIdx = 1 end
+        bTarget = playerList[bIdx]
+        BringSelect.Text = bTarget.Name
+        BringLabel.Text = "Bring Target: " .. bTarget.Name
+        bIdx = bIdx + 1
+    elseif typeStr == "g" then
+        if gIdx > #playerList then gIdx = 1 end
+        gTarget = playerList[gIdx]
+        GotoSelect.Text = gTarget.Name
+        GotoLabel.Text = "Goto Target: " .. gTarget.Name
+        gIdx = gIdx + 1
+    elseif typeStr == "f" then
+        if fIdx > #playerList then fIdx = 1 end
+        fTarget = playerList[fIdx]
+        FlingSelect.Text = fTarget.Name
+        FlingLabel.Text = "Fling Target: " .. fTarget.Name
+        fIdx = fIdx + 1
+    end
+end
+
+SpectateRefresh.MouseButton1Click:Connect(function() sIdx = 1 handleSelect("s") end)
+SpectateBtn.MouseButton1Click:Connect(function() handleSelect("s") end)
+SpectateStop.MouseButton1Click:Connect(function()
+    sTarget = nil
+    SpectateBtn.Text = "Select Player"
+    SpectateLabel.Text = "Spectating: None"
+    pcall(function()
+        Camera.CameraSubject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    end)
+end)
+
+BringRefresh.MouseButton1Click:Connect(function() bIdx = 1 handleSelect("b") end)
+BringSelect.MouseButton1Click:Connect(function() handleSelect("b") end)
+
+GotoRefresh.MouseButton1Click:Connect(function() gIdx = 1 handleSelect("g") end)
+GotoSelect.MouseButton1Click:Connect(function() handleSelect("g") end)
+GotoAction.MouseButton1Click:Connect(function()
+    pcall(function()
+        if gTarget and gTarget.Character and gTarget.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = gTarget.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+        end
+    end)
+end)
+
+FlingRefresh.MouseButton1Click:Connect(function() fIdx = 1 handleSelect("f") end)
+FlingSelect.MouseButton1Click:Connect(function() handleSelect("f") end)
+FlingAction.MouseButton1Click:Connect(function()
+    flingActive = not flingActive
+    FlingAction.Text = "Fling Player: [ " .. (flingActive and "ON" or "OFF") .. " ]"
+    FlingAction.BackgroundColor3 = flingActive and Color3.fromRGB(120, 40, 20) or Color3.fromRGB(80, 60, 20)
+end)
+
+BringToggle.MouseButton1Click:Connect(function()
+    bringActive = not bringActive
+    BringToggle.Text = "Bring Sky Platform: [ " .. (bringActive and "ON" or "OFF") .. " ]"
+    BringToggle.BackgroundColor3 = bringActive and Color3.fromRGB(80, 20, 80) or Color3.fromRGB(60, 20, 60)
+    if not bringActive and bringPlt then
+        bringPlt:Destroy()
+        bringPlt = nil
+    end
+end)
+
+-- // ESP TABLES \\ --
+local espBoxes, espTracers, espSkeletons = {}, {}, {}
+local function clearEsp()
+    pcall(function()
+        for _, b in pairs(espBoxes) do if b then b:Remove() end end
+        for _, t in pairs(espTracers) do if t then t:Remove() end end
+        for _, sList in pairs(espSkeletons) do for _, line in pairs(sList) do if line then line:Remove() end end end
+    end)
+    espBoxes
