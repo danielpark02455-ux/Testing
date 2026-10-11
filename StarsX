@@ -1,0 +1,276 @@
+local P,WS,RS,UIS=game:GetService("Players"),game:GetService("Workspace"),game:GetService("RunService"),game:GetService("UserInputService")
+local LP=P.LocalPlayer local PG=LP:WaitForChild("PlayerGui") local Cam=WS.CurrentCamera
+if PG:FindFirstChild("AX") then PG.AX:Destroy() end
+
+local NG=Instance.new("ScreenGui",PG) NG.Name="AXNotif" NG.ResetOnSpawn=false
+local NL=Instance.new("TextLabel",NG) NL.Size=UDim2.new(0,300,0,50) NL.Position=UDim2.new(0.5,-150,0.15,0) NL.BackgroundColor3=Color3.fromRGB(15,15,15) NL.TextColor3=Color3.fromRGB(255,50,50) NL.Text="Made By AXIOM" NL.Font=Enum.Font.SourceSansBold NL.TextSize=20 Instance.new("UICorner",NL)
+task.spawn(function() task.wait(3) pcall(function() NG:Destroy() end) end)
+
+local SG=Instance.new("ScreenGui",PG) SG.Name="AX" SG.ResetOnSpawn=false
+local Btn=Instance.new("TextButton",SG) Btn.Size=UDim2.new(0,50,0,50) Btn.Position=UDim2.new(0,20,0.35,0) Btn.BackgroundColor3=Color3.fromRGB(20,20,20) Btn.Text="AX" Btn.TextColor3=Color3.fromRGB(255,50,50) Btn.Font=Enum.Font.SourceSansBold Btn.TextSize=16 Btn.Active=true Instance.new("UICorner",Btn)
+
+local MF=Instance.new("Frame",SG) MF.Size=UDim2.new(0,290,0,320) MF.Position=UDim2.new(0.5,-145,0.5,-160) MF.BackgroundColor3=Color3.fromRGB(15,15,15) MF.Active=true Instance.new("UICorner",MF)
+local TB=Instance.new("Frame",MF) TB.Size=UDim2.new(1,0,0,32) TB.BackgroundColor3=Color3.fromRGB(25,25,25) TB.Active=true Instance.new("UICorner",TB)
+local TL=Instance.new("TextLabel",TB) TL.Size=UDim2.new(1,-10,1,0) TL.Position=UDim2.new(0,10,0,0) TL.BackgroundTransparency=1 TL.Text="AXIOM // ULTIMATE SUITE" TL.TextColor3=Color3.fromRGB(255,50,50) TL.Font=Enum.Font.SourceSansBold TL.TextSize=12 TL.TextXAlignment=Enum.TextXAlignment.Left
+
+local ds,dp,bm=false,nil,false
+Btn.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then ds=true dp=i.Position bm=false end end)
+UIS.InputChanged:Connect(function(i) if (i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch) and ds then local d=i.Position-dp if d.Magnitude>3 then bm=true end Btn.Position=UDim2.new(Btn.Position.X.Scale,Btn.Position.X.Offset+d.X,Btn.Position.Y.Scale,Btn.Position.Y.Offset+d.Y) dp=i.Position end end)
+UIS.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then ds=false end end)
+Btn.MouseButton1Click:Connect(function() if not bm then MF.Visible=not MF.Visible end end)
+
+local ms,mp,msp=false,nil,nil
+TB.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then ms=true mp=i.Position msp=MF.Position end end)
+UIS.InputChanged:Connect(function(i) if (i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch) and ms then local d=i.Position-mp MF.Position=UDim2.new(msp.X.Scale,msp.X.Offset+d.X,msp.Y.Scale,msp.Y.Offset+d.Y) end end)
+UIS.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then ms=false end end)
+
+local SF=Instance.new("ScrollingFrame",MF) SF.Size=UDim2.new(1,-10,1,-40) SF.Position=UDim2.new(0,5,0,36) SF.BackgroundTransparency=1 SF.CanvasSize=UDim2.new(0,0,0,680) SF.ScrollBarThickness=5 SF.ScrollingDirection=Enum.ScrollingDirection.Y
+
+local y=5
+local function mk(t,fn)
+    local b=Instance.new("TextButton",SF) b.Size=UDim2.new(0,255,0,30) b.Position=UDim2.new(0,10,0,y) b.BackgroundColor3=Color3.fromRGB(35,35,35) b.Text=t..": [ OFF ]" b.TextColor3=Color3.fromRGB(255,255,255) b.Font=Enum.Font.SourceSansBold b.TextSize=12 Instance.new("UICorner",b)
+    y=y+34 local s=false b.MouseButton1Click:Connect(function() s=not s b.Text=t..": [ "..(s and "ON" or "OFF").." ]" b.BackgroundColor3=s and Color3.fromRGB(80,20,20) or Color3.fromRGB(35,35,35) pcall(function() fn(s) end) end)
+end
+
+local FP,FL,CP,FA,FLck,CL,NameES,BoxES,TracerES,SkelES=nil,nil,nil,false,false,false,false,false,false,false
+
+mk("Safe Platform Farm",function(on) FA=on if on then FP=Instance.new("Part",WS) FP.Size=Vector3.new(120,5,120) FP.Position=Vector3.new(0,1500,0) FP.Anchored=true FP.CanCollide=true else if FP then FP:Destroy() end end end)
+mk("Player Platform Lock",function(on) FLck=on if on then FL=Instance.new("Part",WS) FL.Size=Vector3.new(120,5,120) FL.Position=Vector3.new(5000,1500,5000) FL.Anchored=true FL.CanCollide=true else if FL then FL:Destroy() end end end)
+mk("Clean Solo Vacuum",function(on) CL=on if on then CP=Instance.new("Part",WS) CP.Size=Vector3.new(100,5,100) CP.Position=Vector3.new(-5000,1500,-5000) CP.Anchored=true CP.CanCollide=true else if CP then CP:Destroy() end end end)
+
+mk("Name ESP",function(on) NameES=on end)
+mk("Box ESP",function(on) BoxES=on end)
+mk("Tracer ESP",function(on) TracerES=on end)
+mk("Skeleton ESP",function(on) SkelES=on end)
+
+local SC=Instance.new("Frame",SF) SC.Size=UDim2.new(0,255,0,80) SC.Position=UDim2.new(0,10,0,y) SC.BackgroundColor3=Color3.fromRGB(22,22,22) Instance.new("UICorner",SC) y=y+86
+local SL=Instance.new("TextLabel",SC) SL.Size=UDim2.new(1,-10,0,18) SL.Position=UDim2.new(0,5,0,2) SL.BackgroundTransparency=1 SL.Text="Spectating: None" SL.TextColor3=Color3.fromRGB(200,200,200) SL.Font=Enum.Font.SourceSansBold SL.TextSize=11 SL.TextXAlignment=Enum.TextXAlignment.Left
+local ST=Instance.new("TextButton",SC) ST.Size=UDim2.new(0,118,0,25) ST.Position=UDim2.new(0,5,0,22) ST.BackgroundColor3=Color3.fromRGB(40,40,40) ST.Text="Select Player" ST.TextColor3=Color3.fromRGB(255,255,255) ST.Font=Enum.Font.SourceSansBold ST.TextSize=11 Instance.new("UICorner",ST)
+local RF=Instance.new("TextButton",SC) RF.Size=UDim2.new(0,118,0,25) RF.Position=UDim2.new(0,127,0,22) RF.BackgroundColor3=Color3.fromRGB(30,60,40) RF.Text="Refresh" RF.TextColor3=Color3.fromRGB(255,255,255) RF.Font=Enum.Font.SourceSansBold RF.TextSize=11 Instance.new("UICorner",RF)
+local CLr=Instance.new("TextButton",SC) CLr.Size=UDim2.new(1,-10,0,22) CLr.Position=UDim2.new(0,5,0,50) CLr.BackgroundColor3=Color3.fromRGB(80,30,30) CLr.Text="Stop Spectating" CLr.TextColor3=Color3.fromRGB(255,255,255) CLr.Font=Enum.Font.SourceSansBold CLr.TextSize=11 Instance.new("UICorner",CLr)
+
+local GC=Instance.new("Frame",SF) GC.Size=UDim2.new(0,255,0,80) GC.Position=UDim2.new(0,10,0,y) GC.BackgroundColor3=Color3.fromRGB(22,22,22) Instance.new("UICorner",GC) y=y+86
+local GL=Instance.new("TextLabel",GC) GL.Size=UDim2.new(1,-10,0,18) GL.Position=UDim2.new(0,5,0,2) GL.BackgroundTransparency=1 GL.Text="Goto Target: None" GL.TextColor3=Color3.fromRGB(200,200,200) GL.Font=Enum.Font.SourceSansBold GL.TextSize=11 GL.TextXAlignment=Enum.TextXAlignment.Left
+local GST=Instance.new("TextButton",GC) GST.Size=UDim2.new(0,118,0,25) GST.Position=UDim2.new(0,5,0,22) GST.BackgroundColor3=Color3.fromRGB(40,40,40) GST.Text="Select Target" GST.TextColor3=Color3.fromRGB(255,255,255) GST.Font=Enum.Font.SourceSansBold GST.TextSize=11 Instance.new("UICorner",GST)
+local GRF=Instance.new("TextButton",GC) GRF.Size=UDim2.new(0,118,0,25) GRF.Position=UDim2.new(0,127,0,22) GRF.BackgroundColor3=Color3.fromRGB(30,60,40) GRF.Text="Refresh" GRF.TextColor3=Color3.fromRGB(255,255,255) GRF.Font=Enum.Font.SourceSansBold GRF.TextSize=11 Instance.new("UICorner",GRF)
+local GGo=Instance.new("TextButton",GC) GGo.Size=UDim2.new(1,-10,0,22) GGo.Position=UDim2.new(0,5,0,50) GGo.BackgroundColor3=Color3.fromRGB(60,40,20) GGo.Text="Goto Player" GGo.TextColor3=Color3.fromRGB(255,255,255) GGo.Font=Enum.Font.SourceSansBold GGo.TextSize=11 Instance.new("UICorner",GGo)
+
+local BC=Instance.new("Frame",SF) BC.Size=UDim2.new(0,255,0,80) BC.Position=UDim2.new(0,10,0,y) BC.BackgroundColor3=Color3.fromRGB(22,22,22) Instance.new("UICorner",BC)
+local BL=Instance.new("TextLabel",BC) BL.Size=UDim2.new(1,-10,0,18) BL.Position=UDim2.new(0,5,0,2) BL.BackgroundTransparency=1 BL.Text="Bring Target: None" BL.TextColor3=Color3.fromRGB(200,200,200) BL.Font=Enum.Font.SourceSansBold BL.TextSize=11 BL.TextXAlignment=Enum.TextXAlignment.Left
+local BST=Instance.new("TextButton",BC) BST.Size=UDim2.new(0,118,0,25) BST.Position=UDim2.new(0,5,0,22) BST.BackgroundColor3=Color3.fromRGB(40,40,40) BST.Text="Select Target" BST.TextColor3=Color3.fromRGB(255,255,255) BST.Font=Enum.Font.SourceSansBold BST.TextSize=11 Instance.new("UICorner",BST)
+local BRF=Instance.new("TextButton",BC) BRF.Size=UDim2.new(0,118,0,25) BRF.Position=UDim2.new(0,127,0,22) BRF.BackgroundColor3=Color3.fromRGB(30,60,40) BRF.Text="Refresh" BRF.TextColor3=Color3.fromRGB(255,255,255) BRF.Font=Enum.Font.SourceSansBold BRF.TextSize=11 Instance.new("UICorner",BRF)
+local BP=Instance.new("TextButton",BC) BP.Size=UDim2.new(1,-10,0,22) BP.Position=UDim2.new(0,5,0,50) BP.BackgroundColor3=Color3.fromRGB(60,20,60) BP.Text="Bring Sky Platform: [ OFF ]" BP.TextColor3=Color3.fromRGB(255,255,255) BP.Font=Enum.Font.SourceSansBold BP.TextSize=11 Instance.new("UICorner",BP)
+
+local pList,sIdx,gIdx,bIdx={},1,1,1
+local sTarget,gTarget,bTarget=nil,nil,nil
+local bringPlt,bringActive=nil,false
+local debounce=false
+
+local function upList() pList={} for _,v in ipairs(P:GetPlayers()) do if v~=LP then table.insert(pList,v) end end end
+
+local function clearAllPlatforms()
+    pcall(function()
+        for _, v in ipairs(WS:GetChildren()) do
+            if v.Name == "AXBringPlatform" then
+                v:Destroy()
+            end
+        end
+    end)
+end
+
+local function releaseTarget(plr)
+    pcall(function()
+        if plr and plr.Character then
+            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+            if hum then hum.PlatformStand = false end
+            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0) end
+        end
+    end)
+end
+
+local function handleSelect(typeStr)
+    pcall(function()
+        upList()
+        if #pList == 0 then return end
+        if typeStr == "s" then
+            if sIdx > #pList then sIdx = 1 end
+            sTarget = pList[sIdx]
+            ST.Text = sTarget.Name SL.Text = "Spectating: "..sTarget.Name
+            sIdx = sIdx + 1
+        elseif typeStr == "g" then
+            if gIdx > #pList then gIdx = 1 end
+            gTarget = pList[gIdx]
+            GST.Text = gTarget.Name GL.Text = "Goto Target: "..gTarget.Name
+            gIdx = gIdx + 1
+        elseif typeStr == "b" then
+            if bIdx > #pList then bIdx = 1 end
+            releaseTarget(bTarget)
+            bTarget = pList[bIdx]
+            BST.Text = bTarget.Name BL.Text = "Bring Target: "..bTarget.Name
+            bIdx = bIdx + 1
+        end
+    end)
+end
+
+RF.MouseButton1Click:Connect(function() sIdx=1 handleSelect("s") end)
+ST.MouseButton1Click:Connect(function() handleSelect("s") end)
+CLr.MouseButton1Click:Connect(function() sTarget=nil ST.Text="Select Player" SL.Text="Spectating: None" pcall(function() Cam.CameraSubject=LP.Character and LP.Character:FindFirstChildOfClass("Humanoid") end) end)
+
+GRF.MouseButton1Click:Connect(function() gIdx=1 handleSelect("g") end)
+GST.MouseButton1Click:Connect(function() handleSelect("g") end)
+GGo.MouseButton1Click:Connect(function()
+    pcall(function()
+        if gTarget and gTarget.Character and gTarget.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then hrp.CFrame = gTarget.Character.HumanoidRootPart.CFrame + Vector3.new(0,3,0) end
+        end
+    end)
+end)
+
+BRF.MouseButton1Click:Connect(function() bIdx=1 releaseTarget(bTarget) bTarget=nil BL.Text="Bring Target: None" handleSelect("b") end)
+BST.MouseButton1Click:Connect(function() releaseTarget(bTarget) handleSelect("b") end)
+
+BP.MouseButton1Click:Connect(function()
+    if debounce then return end
+    debounce = true
+    task.delay(0.3, function() debounce = false end)
+
+    bringActive = not bringActive
+    BP.Text = "Bring Sky Platform: [ "..(bringActive and "ON" or "OFF").." ]"
+    BP.BackgroundColor3 = bringActive and Color3.fromRGB(80,20,80) or Color3.fromRGB(60,20,60)
+    
+    clearAllPlatforms()
+    
+    if bringActive then
+        bringPlt = Instance.new("Part",WS)
+        bringPlt.Name = "AXBringPlatform"
+        bringPlt.Size = Vector3.new(120,5,120)
+        bringPlt.Position = Vector3.new(0,5000,0)
+        bringPlt.Anchored = true
+        bringPlt.CanCollide = true
+        bringPlt.Color = Color3.fromRGB(150,50,150)
+        pcall(function()
+            if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+                LP.Character.HumanoidRootPart.CFrame = CFrame.new(0,5006,15)
+            end
+        end)
+    else
+        releaseTarget(bTarget)
+        bringPlt = nil
+    end
+end)
+
+local espNames, espBoxes, espTracers, espSkeletons = {}, {}, {}, {}
+
+RS.Heartbeat:Connect(function()
+    pcall(function()
+        local c=LP.Character local r=c and c:FindFirstChild("HumanoidRootPart")
+        if sTarget and sTarget.Character then local h=sTarget.Character:FindFirstChildOfClass("Humanoid") if h then Cam.CameraSubject=h end end
+
+        if bringActive and bTarget and bTarget.Character and bTarget.Character:FindFirstChild("HumanoidRootPart") then
+            local bHrp = bTarget.Character.HumanoidRootPart
+            local bHum = bTarget.Character:FindFirstChildOfClass("Humanoid")
+            if not bringPlt or not bringPlt.Parent then
+                clearAllPlatforms()
+                bringPlt = Instance.new("Part",WS)
+                bringPlt.Name = "AXBringPlatform"
+                bringPlt.Size = Vector3.new(120,5,120)
+                bringPlt.Position = Vector3.new(0,5000,0)
+                bringPlt.Anchored = true
+                bringPlt.CanCollide = true
+                bringPlt.Color = Color3.fromRGB(150,50,150)
+            end
+            bHrp.CFrame = CFrame.new(0,5006,0)
+            bHrp.AssemblyLinearVelocity = Vector3.new(0,0,0)
+            bHrp.AssemblyAngularVelocity = Vector3.new(0,0,0)
+            if bHum then bHum.PlatformStand = true end
+        else
+            if bringPlt and not bringActive then
+                releaseTarget(bTarget)
+                clearAllPlatforms()
+                bringPlt=nil
+            end
+        end
+
+        -- Name ESP
+        for _,plr in ipairs(P:GetPlayers()) do
+            if plr~=LP and plr.Character and plr.Character:FindFirstChild("Head") then
+                local head = plr.Character.Head
+                if NameES then
+                    if not espNames[plr] then local txt = Drawing.new("Text") txt.Visible = false txt.Center = true txt.Outline = true txt.Color = Color3.fromRGB(255,50,50) txt.Size = 13 espNames[plr] = txt end
+                    local vec, onScreen = Cam:WorldToViewportPoint(head.Position)
+                    local txt = espNames[plr]
+                    if onScreen then
+                        txt.Text = plr.Name txt.Position = Vector2.new(vec.X, vec.Y - 25) txt.Visible = true
+                    else
+                        txt.Visible = false
+                    end
+                else
+                    if espNames[plr] then espNames[plr].Visible = false espNames[plr]:Remove() espNames[plr] = nil end
+                end
+            end
+        end
+
+        -- Box ESP
+        for _,plr in ipairs(P:GetPlayers()) do
+            if plr~=LP and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = plr.Character.HumanoidRootPart
+                if BoxES then
+                    if not espBoxes[plr] then local box = Drawing.new("Square") box.Visible = false box.Color = Color3.fromRGB(255,50,50) box.Thickness = 1.5 box.Filled = false espBoxes[plr] = box end
+                    local vec, onScreen = Cam:WorldToViewportPoint(hrp.Position)
+                    local box = espBoxes[plr]
+                    if onScreen then
+                        local size = math.clamp(2000 / vec.Z, 15, 300)
+                        box.Size = Vector2.new(size * 0.6, size) box.Position = Vector2.new(vec.X - box.Size.X / 2, vec.Y - box.Size.Y / 2) box.Visible = true
+                    else
+                        box.Visible = false
+                    end
+                else
+                    if espBoxes[plr] then espBoxes[plr].Visible = false espBoxes[plr]:Remove() espBoxes[plr] = nil end
+                end
+            end
+        end
+
+        -- Tracer ESP
+        for _,plr in ipairs(P:GetPlayers()) do
+            if plr~=LP and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = plr.Character.HumanoidRootPart
+                if TracerES then
+                    if not espTracers[plr] then local tr = Drawing.new("Line") tr.Visible = false tr.Color = Color3.fromRGB(50,255,50) tr.Thickness = 1.5 espTracers[plr] = tr end
+                    local vec, onScreen = Cam:WorldToViewportPoint(hrp.Position)
+                    local tr = espTracers[plr]
+                    if onScreen then
+                        tr.From = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y) tr.To = Vector2.new(vec.X, vec.Y) tr.Visible = true
+                    else
+                        tr.Visible = false
+                    end
+                else
+                    if espTracers[plr] then espTracers[plr].Visible = false espTracers[plr]:Remove() espTracers[plr] = nil end
+                end
+            end
+        end
+
+        -- Skeleton ESP
+        for _,plr in ipairs(P:GetPlayers()) do
+            if plr~=LP and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                local char = plr.Character
+                if SkelES then
+                    if not espSkeletons[plr] then
+                        espSkeletons[plr] = { Drawing.new("Line"), Drawing.new("Line"), Drawing.new("Line"), Drawing.new("Line"), Drawing.new("Line") }
+                        for _, l in ipairs(espSkeletons[plr]) do l.Visible = false l.Color = Color3.fromRGB(255,255,255) l.Thickness = 1.5 end
+                    end
+                    local head, torso = char:FindFirstChild("Head"), char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
+                    local lArm = char:FindFirstChild("Left Arm") or char:FindFirstChild("LeftHand") or char:FindFirstChild("Left Lower Arm")
+                    local rArm = char:FindFirstChild("Right Arm") or char:FindFirstChild("RightHand") or char:FindFirstChild("Right Lower Arm")
+                    local lLeg = char:FindFirstChild("Left Leg") or char:FindFirstChild("LeftFoot") or char:FindFirstChild("Left Lower Leg")
+                    local rLeg = char:FindFirstChild("Right Leg") or char:FindFirstChild("RightFoot") or char:FindFirstChild("Right Lower Leg")
+                    if head and torso then
+                        local hP, hOn = Cam:WorldToViewportPoint(head.Position)
+                        local tP = Cam:WorldToViewportPoint(torso.Position)
+                        if hOn then
+                            espSkeletons[plr][1].From = Vector2.new(hP.X, hP.Y) espSkeletons[plr][1].To = Vector2.new(tP.X, tP.Y) espSkeletons[plr][1].Visible = true
+                            if lArm then local laP = Cam:WorldToViewportPoint(lArm.Position) espSkeletons[plr][2].From = Vector2.new(tP.X, tP.Y) espSkeletons[plr][2].To = Vector2.new(laP.X, laP.Y) espSkeletons[plr][2].Visible = true end
+                            if rArm then local raP = Cam:WorldToViewportPoint(rArm.Position) espSkeletons[plr][3].From = Vector2.new(tP.X, tP.Y) espSkeletons[plr][3].To = Vector2.new(raP.X, raP.Y) espSkeletons[plr][3].Visible = true end
+                            if lLeg then local llP = Cam:WorldToViewportPoint(lLeg.Position) espSkeletons[plr][4].From = Vector2.new(tP.X, tP.Y) espSkeletons[plr][4].To = Vector2.new(llP.X, llP.Y) espSkeletons[plr][4].Visible = true end
+                            if rLeg then local rlP = Cam:WorldToViewportPoint(rLeg.Position) espSkeletons[plr][5].From = Vector2.new(tP.X, tP.Y
