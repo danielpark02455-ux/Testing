@@ -1,0 +1,492 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = Workspace.CurrentCamera
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+if PlayerGui:FindFirstChild("AxiomDirectNeo") then
+    PlayerGui.AxiomDirectNeo:Destroy()
+end
+
+-- Execution Fade-in Notification ("Made By AXIOM")
+local NotifGui = Instance.new("ScreenGui")
+NotifGui.Name = "AxiomNotif"
+NotifGui.ResetOnSpawn = false
+NotifGui.Parent = PlayerGui
+
+local NotifLabel = Instance.new("TextLabel")
+NotifLabel.Size = UDim2.new(0, 320, 0, 65)
+NotifLabel.Position = UDim2.new(0.5, -160, 0.2, 0)
+NotifLabel.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+NotifLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+NotifLabel.Text = "Made By AXIOM"
+NotifLabel.TextSize = 22
+NotifLabel.Font = Enum.Font.SourceSansBold
+NotifLabel.BackgroundTransparency = 1
+NotifLabel.TextTransparency = 1
+NotifLabel.Parent = NotifGui
+
+local NotifCorner = Instance.new("UICorner")
+NotifCorner.CornerRadius = UDim.new(0, 10)
+NotifCorner.Parent = NotifLabel
+
+local NotifStroke = Instance.new("UIStroke")
+NotifStroke.Color = Color3.fromRGB(255, 50, 50)
+NotifStroke.Thickness = 1.5
+NotifStroke.Parent = NotifLabel
+
+task.spawn(function()
+    TweenService:Create(NotifLabel, TweenInfo.new(0.8), {BackgroundTransparency = 0.15, TextTransparency = 0}):Play()
+    task.wait(3)
+    TweenService:Create(NotifLabel, TweenInfo.new(0.8), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+    task.wait(1)
+    NotifGui:Destroy()
+end)
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AxiomDirectNeo"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.Parent = PlayerGui
+
+-- Floating Toggle Button (Now fully draggable on mobile!)
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Position = UDim2.new(0, 20, 0.35, 0)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleBtn.Text = "AX"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 50, 50)
+ToggleBtn.Font = Enum.Font.SourceSansBold
+ToggleBtn.TextSize = 16
+ToggleBtn.Active = true
+ToggleBtn.Parent = ScreenGui
+
+local TCorner = Instance.new("UICorner")
+TCorner.Parent = ToggleBtn
+
+-- Toggle Button Draggable Logic
+local btnDragging, btnDragStart, btnStartPos
+ToggleBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        btnDragging = true
+        btnDragStart = input.Position
+        btnStartPos = ToggleBtn.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                btnDragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and btnDragging then
+        local delta = input.Position - btnDragStart
+        ToggleBtn.Position = UDim2.new(btnStartPos.X.Scale, btnStartPos.X.Offset + delta.X, btnStartPos.Y.Scale, btnStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 300, 0, 480)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -240)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BorderSizePixel = 0
+MainFrame.Visible = true
+MainFrame.Active = true
+MainFrame.Parent = ScreenGui
+
+local MCorner = Instance.new("UICorner")
+MCorner.Parent = MainFrame
+
+-- Title Bar & Universal Smooth Dragging Logic for MainFrame
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, 0, 0, 35)
+TitleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TitleBar.BorderSizePixel = 0
+TitleBar.Parent = MainFrame
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(1, -10, 1, 0)
+TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "AXIOM // SELECTABLE SPECTATE"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.TextSize = 12
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.Parent = TitleBar
+
+local dragging, dragStart, startPos
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and dragging then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Only toggle menu if user didn't drag the button
+local buttonMoved = false
+ToggleBtn.InputBegan:Connect(function() buttonMoved = false end)
+ToggleBtn.InputChanged:Connect(function() buttonMoved = true end)
+ToggleBtn.MouseButton1Click:Connect(function()
+    if not buttonMoved then
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
+
+local function MakeBtn(text, y)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(0, 260, 0, 36)
+    b.Position = UDim2.new(0.5, -130, 0, y)
+    b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    b.Text = text .. ": [ OFF ]"
+    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    b.Font = Enum.Font.SourceSansBold
+    b.TextSize = 13
+    b.Parent = MainFrame
+    local c = Instance.new("UICorner")
+    c.Parent = b
+    return b
+end
+
+local FarmBtn = MakeBtn("Safe Platform Farm", 42)
+local PlayerLockBtn = MakeBtn("Player Platform Lock", 82)
+local CleanVoidBtn = MakeBtn("Clean Solo Void & Vacuum", 122)
+local DummyBtn = MakeBtn("Spawn Practice Dummy", 162)
+local EspBtn = MakeBtn("Player Name ESP", 202)
+
+-- Spectate Control Panel Container
+local SpectateContainer = Instance.new("Frame")
+SpectateContainer.Size = UDim2.new(0, 260, 0, 110)
+SpectateContainer.Position = UDim2.new(0.5, -130, 0, 244)
+SpectateContainer.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+SpectateContainer.BorderSizePixel = 0
+SpectateContainer.Parent = MainFrame
+
+local SCorner = Instance.new("UICorner")
+SCorner.Parent = SpectateContainer
+
+local SpectateLabel = Instance.new("TextLabel")
+SpectateLabel.Size = UDim2.new(1, -10, 0, 25)
+SpectateLabel.Position = UDim2.new(0, 5, 0, 2)
+SpectateLabel.BackgroundTransparency = 1
+SpectateLabel.Text = "Spectating: None"
+SpectateLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+SpectateLabel.Font = Enum.Font.SourceSansBold
+SpectateLabel.TextSize = 12
+SpectateLabel.TextXAlignment = Enum.TextXAlignment.Left
+SpectateLabel.Parent = SpectateContainer
+
+-- Dropdown / Selector Button
+local SelectTargetBtn = Instance.new("TextButton")
+SelectTargetBtn.Size = UDim2.new(1, -10, 0, 35)
+SelectTargetBtn.Position = UDim2.new(0, 5, 0, 28)
+SelectTargetBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+SelectTargetBtn.Text = "Target: Select Player"
+SelectTargetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SelectTargetBtn.Font = Enum.Font.SourceSansBold
+SelectTargetBtn.TextSize = 12
+SelectTargetBtn.Parent = SpectateContainer
+local STCorner = Instance.new("UICorner")
+STCorner.Parent = SelectTargetBtn
+
+-- Refresh List Button
+local RefreshListBtn = Instance.new("TextButton")
+RefreshListBtn.Size = UDim2.new(0, 122, 0, 32)
+RefreshListBtn.Position = UDim2.new(0, 5, 0, 68)
+RefreshListBtn.BackgroundColor3 = Color3.fromRGB(30, 60, 40)
+RefreshListBtn.Text = "Refresh Players"
+RefreshListBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+RefreshListBtn.Font = Enum.Font.SourceSansBold
+RefreshListBtn.TextSize = 12
+RefreshListBtn.Parent = SpectateContainer
+local RLCorner = Instance.new("UICorner")
+RLCorner.Parent = RefreshListBtn
+
+-- Stop Spectating Button
+local StopSpectateBtn = Instance.new("TextButton")
+StopSpectateBtn.Size = UDim2.new(0, 122, 0, 32)
+StopSpectateBtn.Position = UDim2.new(0, 133, 0, 68)
+StopSpectateBtn.BackgroundColor3 = Color3.fromRGB(80, 30, 30)
+StopSpectateBtn.Text = "Stop Spectate"
+StopSpectateBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+StopSpectateBtn.Font = Enum.Font.SourceSansBold
+StopSpectateBtn.TextSize = 12
+StopSpectateBtn.Parent = SpectateContainer
+local SSCorner = Instance.new("UICorner")
+SSCorner.Parent = StopSpectateBtn
+
+local FarmPlatform, farmActive = nil, false
+local PlayerLockPlatform, playerLockActive = nil, false
+local CleanPlatform, cleanActive = nil, false
+local PracticeDummy, dummyActive = nil, false
+local espActive = false
+
+local currentSpectateTarget = nil
+
+FarmBtn.MouseButton1Click:Connect(function()
+    farmActive = not farmActive
+    FarmBtn.Text = "Safe Platform Farm: [ " .. (farmActive and "ON" or "OFF") .. " ]"
+    FarmBtn.BackgroundColor3 = farmActive and Color3.fromRGB(80, 20, 20) or Color3.fromRGB(35, 35, 35)
+    if farmActive then
+        if not FarmPlatform or not FarmPlatform.Parent then
+            FarmPlatform = Instance.new("Part")
+            FarmPlatform.Size = Vector3.new(120, 5, 120)
+            FarmPlatform.Position = Vector3.new(0, 1500, 0)
+            FarmPlatform.Anchored = true
+            FarmPlatform.CanCollide = true
+            FarmPlatform.Parent = Workspace
+        end
+    else
+        if FarmPlatform then FarmPlatform:Destroy() FarmPlatform = nil end
+    end
+end)
+
+PlayerLockBtn.MouseButton1Click:Connect(function()
+    playerLockActive = not playerLockActive
+    PlayerLockBtn.Text = "Player Platform Lock: [ " .. (playerLockActive and "ON" or "OFF") .. " ]"
+    PlayerLockBtn.BackgroundColor3 = playerLockActive and Color3.fromRGB(80, 20, 20) or Color3.fromRGB(35, 35, 35)
+    if playerLockActive then
+        if not PlayerLockPlatform or not PlayerLockPlatform.Parent then
+            PlayerLockPlatform = Instance.new("Part")
+            PlayerLockPlatform.Size = Vector3.new(120, 5, 120)
+            PlayerLockPlatform.Position = Vector3.new(5000, 1500, 5000)
+            PlayerLockPlatform.Anchored = true
+            PlayerLockPlatform.CanCollide = true
+            PlayerLockPlatform.Parent = Workspace
+        end
+    else
+        if PlayerLockPlatform then PlayerLockPlatform:Destroy() PlayerLockPlatform = nil end
+    end
+end)
+
+CleanVoidBtn.MouseButton1Click:Connect(function()
+    cleanActive = not cleanActive
+    CleanVoidBtn.Text = "Clean Solo Void & Vacuum: [ " .. (cleanActive and "ON" or "OFF") .. " ]"
+    CleanVoidBtn.BackgroundColor3 = cleanActive and Color3.fromRGB(20, 60, 60) or Color3.fromRGB(35, 35, 35)
+    if cleanActive then
+        if not CleanPlatform or not CleanPlatform.Parent then
+            CleanPlatform = Instance.new("Part")
+            CleanPlatform.Size = Vector3.new(100, 5, 100)
+            CleanPlatform.Position = Vector3.new(-5000, 1500, -5000)
+            CleanPlatform.Anchored = true
+            CleanPlatform.CanCollide = true
+            CleanPlatform.Parent = Workspace
+        end
+    else
+        if CleanPlatform then CleanPlatform:Destroy() CleanPlatform = nil end
+    end
+end)
+
+DummyBtn.MouseButton1Click:Connect(function()
+    dummyActive = not dummyActive
+    DummyBtn.Text = "Spawn Practice Dummy: [ " .. (dummyActive and "ON" or "OFF") .. " ]"
+    DummyBtn.BackgroundColor3 = dummyActive and Color3.fromRGB(60, 50, 20) or Color3.fromRGB(35, 35, 35)
+    if dummyActive then
+        if not PracticeDummy or not PracticeDummy.Parent then
+            local pos = Vector3.new(0, 1506, 0)
+            if CleanPlatform then pos = CleanPlatform.Position + Vector3.new(5, 5, 0) end
+            
+            local m = Instance.new("Model")
+            m.Name = "AxiomR6Dummy"
+            local h = Instance.new("Humanoid")
+            h.MaxHealth = 9999999
+            h.Health = 9999999
+            h.Parent = m
+            
+            local hrp = Instance.new("Part")
+            hrp.Name = "HumanoidRootPart"
+            hrp.Size = Vector3.new(2, 2, 1)
+            hrp.Position = pos
+            hrp.Transparency = 1
+            hrp.Parent = m
+            
+            local torso = Instance.new("Part")
+            torso.Name = "Torso"
+            torso.Size = Vector3.new(2, 2, 1)
+            torso.Position = pos
+            torso.CanCollide = true
+            torso.Color = Color3.fromRGB(200, 50, 50)
+            torso.Parent = m
+            
+            m.PrimaryPart = hrp
+            m.Parent = Workspace
+            PracticeDummy = m
+        end
+    else
+        if PracticeDummy then PracticeDummy:Destroy() PracticeDummy = nil end
+    end
+end)
+
+EspBtn.MouseButton1Click:Connect(function()
+    espActive = not espActive
+    EspBtn.Text = "Player Name ESP: [ " .. (espActive and "ON" or "OFF") .. " ]"
+    EspBtn.BackgroundColor3 = espActive and Color3.fromRGB(20, 60, 20) or Color3.fromRGB(35, 35, 35)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Head") then
+            local tag = plr.Character.Head:FindFirstChild("AxiomESP")
+            if espActive and not tag then
+                local b = Instance.new("BillboardGui")
+                b.Name = "AxiomESP"
+                b.Size = UDim2.new(0, 100, 0, 40)
+                b.StudsOffset = Vector3.new(0, 2.5, 0)
+                b.AlwaysOnTop = true
+                b.Parent = plr.Character.Head
+                local t = Instance.new("TextLabel")
+                t.Size = UDim2.new(1, 0, 1, 0)
+                t.BackgroundTransparency = 1
+                t.Text = plr.Name
+                t.TextColor3 = Color3.fromRGB(255, 50, 50)
+                t.Font = Enum.Font.SourceSansBold
+                t.TextSize = 14
+                t.Parent = b
+            elseif not espActive and tag then
+                tag:Destroy()
+            end
+        end
+    end
+end)
+
+-- Selectable Spectate Cycler & Refresh Logic
+local playerList = {}
+local listIndex = 1
+
+local function updatePlayerList()
+    playerList = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            table.insert(playerList, plr)
+        end
+    end
+end
+
+RefreshListBtn.MouseButton1Click:Connect(function()
+    updatePlayerList()
+    if #playerList > 0 then
+        listIndex = 1
+        currentSpectateTarget = playerList[listIndex]
+        SelectTargetBtn.Text = "Target: " .. currentSpectateTarget.Name
+        SpectateLabel.Text = "Spectating: " .. currentSpectateTarget.Name
+    else
+        currentSpectateTarget = nil
+        SelectTargetBtn.Text = "Target: No Players"
+        SpectateLabel.Text = "Spectating: None"
+    end
+end)
+
+SelectTargetBtn.MouseButton1Click:Connect(function()
+    updatePlayerList()
+    if #playerList == 0 then
+        SelectTargetBtn.Text = "Target: No Players"
+        SpectateLabel.Text = "Spectating: None"
+        currentSpectateTarget = nil
+        return
+    end
+    
+    listIndex = listIndex + 1
+    if listIndex > #playerList then
+        listIndex = 1
+    end
+    
+    currentSpectateTarget = playerList[listIndex]
+    SelectTargetBtn.Text = "Target: " .. currentSpectateTarget.Name
+    SpectateLabel.Text = "Spectating: " .. currentSpectateTarget.Name
+end)
+
+StopSpectateBtn.MouseButton1Click:Connect(function()
+    currentSpectateTarget = nil
+    SelectTargetBtn.Text = "Target: Select Player"
+    SpectateLabel.Text = "Spectating: None"
+    Camera.CameraSubject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+end)
+
+RunService.Heartbeat:Connect(function()
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    
+    if currentSpectateTarget and currentSpectateTarget.Character then
+        local hum = currentSpectateTarget.Character:FindFirstChildOfClass("Humanoid")
+        if hum then Camera.CameraSubject = hum end
+    elseif not currentSpectateTarget and char then
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum and Camera.CameraSubject ~= hum then Camera.CameraSubject = hum end
+    end
+    
+    if farmActive and FarmPlatform and hrp then
+        if (hrp.Position - FarmPlatform.Position).Magnitude > 65 then
+            hrp.CFrame = CFrame.new(FarmPlatform.Position + Vector3.new(0, 5, 0))
+        end
+        pcall(function()
+            for _, v in ipairs(Workspace:GetChildren()) do
+                if v:IsA("Model") and v ~= char and not Players:GetPlayerFromCharacter(v) and v ~= PracticeDummy then
+                    local h = v:FindFirstChildOfClass("Humanoid")
+                    local r = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Torso")
+                    if h and r and h.Health > 0 then
+                        r.CFrame = FarmPlatform.CFrame + Vector3.new(0, 4, 0)
+                        r.Anchored = true
+                        h.PlatformStand = true
+                    end
+                end
+            end
+        end)
+    end
+    
+    if playerLockActive and PlayerLockPlatform and hrp then
+        if (hrp.Position - PlayerLockPlatform.Position).Magnitude > 65 then
+            hrp.CFrame = CFrame.new(PlayerLockPlatform.Position + Vector3.new(0, 5, 0))
+        end
+        pcall(function()
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr ~= LocalPlayer then
+                    local pChar = plr.Character
+                    local pHrp = pChar and pChar:FindFirstChild("HumanoidRootPart")
+                    local pHum = pChar and pChar:FindFirstChildOfClass("Humanoid")
+                    if pHrp and pHum and pHum.Health > 0 then
+                        pHrp.CFrame = PlayerLockPlatform.CFrame + Vector3.new(0, 4, 0)
+                        pHrp.Anchored = true
+                        pHum.PlatformStand = true
+                    end
+                end
+            end
+        end)
+    end
+    
+    if cleanActive and CleanPlatform and hrp then
+        if (hrp.Position - CleanPlatform.Position).Magnitude > 55 then
+            hrp.CFrame = CFrame.new(CleanPlatform.Position + Vector3.new(0, 5, 0))
+        end
+        pcall(function()
+            for _, obj in ipairs(Workspace:GetDescendants()) do
+                if obj:IsA("BasePart") or obj:IsA("Model") then
+                    local n = obj.Name:lower()
+                    if n:match("candy") or n:match("trollbuck") or n:match("trollgem") or n:match("coin") or n:match("gem") or n:match("event") then
+                        local tp = obj:IsA("Model") and obj.PrimaryPart or obj
+                        if tp and tp:IsA("BasePart") then
+                            tp.CFrame = CleanPlatform.CFrame + Vector3.new(math.random(-3, 3), 3, math.random(-3, 3))
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+print("[Axiom Core]: Fully draggable toggle button & menu online, boss man.")
