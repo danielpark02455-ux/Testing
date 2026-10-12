@@ -1,0 +1,516 @@
+--!strict
+--[[\
+    Axiom // TIFR Master Suite (Restored Baseline)
+    Architecture: Strict Mode Typed Luau
+]]--
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+local Camera = Workspace.CurrentCamera
+
+local TIFR_GROUP_ID = 17157807
+local KNOWN_STAFF = {
+    [3248695078] = "robloxisarichdude (Game Owner)",
+    ["robloxisarichdude"] = "Game Owner",
+}
+
+pcall(function()
+    if CoreGui:FindFirstChild("AXBossUI") then CoreGui.AXBossUI:Destroy() end
+    if CoreGui:FindFirstChild("AXBossNotif") then CoreGui.AXBossNotif:Destroy() end
+end)
+
+local function sendNotification(text: string, color: Color3, duration: number)
+    task.spawn(function()
+        local ng = Instance.new("ScreenGui")
+        ng.Name = "AXBossNotif"
+        ng.ResetOnSpawn = false
+        pcall(function() ng.Parent = CoreGui end)
+        
+        local nl = Instance.new("TextLabel", ng)
+        nl.Size = UDim2.new(0, 320, 0, 50)
+        nl.Position = UDim2.new(0.5, -160, 0.12, 0)
+        nl.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+        nl.TextColor3 = color
+        nl.Text = text
+        nl.Font = Enum.Font.SourceSansBold
+        nl.TextSize = 16
+        Instance.new("UICorner", nl)
+        
+        task.wait(duration)
+        pcall(function() ng:Destroy() end)
+    end)
+end
+
+sendNotification("AXIOM // TIFR MASTER SUITE LOADED", Color3.fromRGB(50, 255, 50), 3)
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AXBossUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.DisplayOrder = 999999
+pcall(function() ScreenGui.Parent = CoreGui end)
+
+local ToggleBtn = Instance.new("TextButton", ScreenGui)
+ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Position = UDim2.new(0, 20, 0.35, 0)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleBtn.Text = "AX"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 50, 50)
+ToggleBtn.Font = Enum.Font.SourceSansBold
+ToggleBtn.TextSize = 16
+ToggleBtn.Active = true
+Instance.new("UICorner", ToggleBtn)
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 310, 0, 360)
+MainFrame.Position = UDim2.new(0.5, -155, 0.5, -180)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Active = true
+MainFrame.Visible = true
+Instance.new("UICorner", MainFrame)
+
+local TitleBar = Instance.new("Frame", MainFrame)
+TitleBar.Size = UDim2.new(1, 0, 0, 38)
+TitleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+TitleBar.Active = true
+Instance.new("UICorner", TitleBar)
+
+local TitleLabel = Instance.new("TextLabel", TitleBar)
+TitleLabel.Size = UDim2.new(1, -10, 0, 18)
+TitleLabel.Position = UDim2.new(0, 10, 0, 2)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "AXIOM // TIFR MASTER SUITE"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.TextSize = 12
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local TimeLabel = Instance.new("TextLabel", TitleBar)
+TimeLabel.Size = UDim2.new(1, -10, 0, 16)
+TimeLabel.Position = UDim2.new(0, 10, 0, 18)
+TimeLabel.BackgroundTransparency = 1
+TimeLabel.Text = "Time: Syncing..."
+TimeLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+TimeLabel.Font = Enum.Font.SourceSans
+TimeLabel.TextSize = 10
+TimeLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Draggable Toggle Button Logic
+local draggingBtn, dragStartBtn, startPosBtn = false, nil, nil
+ToggleBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingBtn = true
+        dragStartBtn = input.Position
+        startPosBtn = ToggleBtn.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and draggingBtn then
+        local delta = input.Position - dragStartBtn
+        ToggleBtn.Position = UDim2.new(startPosBtn.X.Scale, startPosBtn.X.Offset + delta.X, startPosBtn.Y.Scale, startPosBtn.Y.Offset + delta.Y)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingBtn = false
+    end
+end)
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+end)
+
+-- Draggable Main Frame Logic (Via Title Bar)
+local draggingFrame, dragStartFrame, startPosFrame = false, nil, nil
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingFrame = true
+        dragStartFrame = input.Position
+        startPosFrame = MainFrame.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and draggingFrame then
+        local delta = input.Position - dragStartFrame
+        MainFrame.Position = UDim2.new(startPosFrame.X.Scale, startPosFrame.X.Offset + delta.X, startPosFrame.Y.Scale, startPosFrame.Y.Offset + delta.Y)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingFrame = false
+    end
+end)
+
+local ScrollingFrame = Instance.new("ScrollingFrame", MainFrame)
+ScrollingFrame.Size = UDim2.new(1, -10, 1, -44)
+ScrollingFrame.Position = UDim2.new(0, 5, 0, 42)
+ScrollingFrame.BackgroundTransparency = 1
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 330)
+ScrollingFrame.ScrollBarThickness = 5
+ScrollingFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+ScrollingFrame.Active = true
+
+local yOffset = 5
+
+local function createCard(height: number): Frame
+    local f = Instance.new("Frame", ScrollingFrame)
+    f.Size = UDim2.new(0, 275, 0, height)
+    f.Position = UDim2.new(0, 10, 0, yOffset)
+    f.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
+    Instance.new("UICorner", f)
+    yOffset += height + 8
+    return f
+end
+
+-- 1. Boss Control Section
+local BC = createCard(105)
+local BL = Instance.new("TextLabel", BC)
+BL.Size = UDim2.new(1, -10, 0, 18) BL.Position = UDim2.new(0, 5, 0, 2)
+BL.BackgroundTransparency = 1 BL.Text = "Target Boss: All / None"
+BL.TextColor3 = Color3.fromRGB(200, 200, 200) BL.Font = Enum.Font.SourceSansBold BL.TextXAlignment = Enum.TextXAlignment.Left
+
+local BST = Instance.new("TextButton", BC)
+BST.Size = UDim2.new(0, 128, 0, 24) BST.Position = UDim2.new(0, 5, 0, 22)
+BST.BackgroundColor3 = Color3.fromRGB(40, 40, 40) BST.Text = "Select Boss"
+BST.TextColor3 = Color3.fromRGB(255, 255, 255) BST.Font = Enum.Font.SourceSansBold BST.TextSize = 11
+Instance.new("UICorner", BST)
+
+local BRF = Instance.new("TextButton", BC)
+BRF.Size = UDim2.new(0, 128, 0, 24) BRF.Position = UDim2.new(0, 138, 0, 22)
+BRF.BackgroundColor3 = Color3.fromRGB(30, 60, 40) BRF.Text = "Refresh List"
+BRF.TextColor3 = Color3.fromRGB(255, 255, 255) BRF.Font = Enum.Font.SourceSansBold BRF.TextSize = 11
+Instance.new("UICorner", BRF)
+
+local BPAll = Instance.new("TextButton", BC)
+BPAll.Size = UDim2.new(1, -10, 0, 22) BPAll.Position = UDim2.new(0, 5, 0, 50)
+BPAll.BackgroundColor3 = Color3.fromRGB(40, 20, 60) BPAll.Text = "Bring All Bosses: [ OFF ]"
+BPAll.TextColor3 = Color3.fromRGB(255, 255, 255) BPAll.Font = Enum.Font.SourceSansBold BPAll.TextSize = 11
+Instance.new("UICorner", BPAll)
+
+local BPSel = Instance.new("TextButton", BC)
+BPSel.Size = UDim2.new(1, -10, 0, 22) BPSel.Position = UDim2.new(0, 5, 0, 76)
+BPSel.BackgroundColor3 = Color3.fromRGB(60, 20, 60) BPSel.Text = "Bring Selected Boss: [ OFF ]"
+BPSel.TextColor3 = Color3.fromRGB(255, 255, 255) BPSel.Font = Enum.Font.SourceSansBold BPSel.TextSize = 11
+Instance.new("UICorner", BPSel)
+
+-- 2. Spectate Boss Section
+local SC = createCard(80)
+local SL = Instance.new("TextLabel", SC)
+SL.Size = UDim2.new(1, -10, 0, 18) SL.Position = UDim2.new(0, 5, 0, 2)
+SL.BackgroundTransparency = 1 SL.Text = "Spectating Boss: None"
+SL.TextColor3 = Color3.fromRGB(200, 200, 200) SL.Font = Enum.Font.SourceSansBold SL.TextXAlignment = Enum.TextXAlignment.Left
+
+local ST = Instance.new("TextButton", SC)
+ST.Size = UDim2.new(0, 128, 0, 24) ST.Position = UDim2.new(0, 5, 0, 22)
+ST.BackgroundColor3 = Color3.fromRGB(40, 40, 40) ST.Text = "Select Boss"
+ST.TextColor3 = Color3.fromRGB(255, 255, 255) ST.Font = Enum.Font.SourceSansBold ST.TextSize = 11
+Instance.new("UICorner", ST)
+
+local SRF = Instance.new("TextButton", SC)
+SRF.Size = UDim2.new(0, 128, 0, 24) SRF.Position = UDim2.new(0, 138, 0, 22)
+SRF.BackgroundColor3 = Color3.fromRGB(30, 60, 40) SRF.Text = "Refresh"
+SRF.TextColor3 = Color3.fromRGB(255, 255, 255) SRF.Font = Enum.Font.SourceSansBold SRF.TextSize = 11
+Instance.new("UICorner", SRF)
+
+local SClr = Instance.new("TextButton", SC)
+SClr.Size = UDim2.new(1, -10, 0, 22) SClr.Position = UDim2.new(0, 5, 0, 50)
+SClr.BackgroundColor3 = Color3.fromRGB(80, 30, 30) SClr.Text = "Stop Spectating"
+SClr.TextColor3 = Color3.fromRGB(255, 255, 255) SClr.Font = Enum.Font.SourceSansBold SClr.TextSize = 11
+Instance.new("UICorner", SClr)
+
+-- 3. FE Staff Detector Section
+local FC = createCard(55)
+local FL = Instance.new("TextLabel", FC)
+FL.Size = UDim2.new(1, -10, 0, 18) FL.Position = UDim2.new(0, 5, 0, 2)
+FL.BackgroundTransparency = 1 FL.Text = "FE Staff Detector: ACTIVE"
+FL.TextColor3 = Color3.fromRGB(50, 255, 50) FL.Font = Enum.Font.SourceSansBold FL.TextXAlignment = Enum.TextXAlignment.Left
+
+local FCheck = Instance.new("TextButton", FC)
+FCheck.Size = UDim2.new(1, -10, 0, 24) FCheck.Position = UDim2.new(0, 5, 0, 24)
+FCheck.BackgroundColor3 = Color3.fromRGB(40, 40, 70) FCheck.Text = "Check Server For Staff"
+FCheck.TextColor3 = Color3.fromRGB(255, 255, 255) FCheck.Font = Enum.Font.SourceSansBold FCheck.TextSize = 11
+Instance.new("UICorner", FCheck)
+
+-- Runtime Logic Variables
+local bossList: {Model} = {}
+local sIdx, bIdx = 1, 1
+local sBoss: Model?, bBoss: Model? = nil, nil
+local bringPlt: Part? = nil
+local bringAllActive, bringSelActive = false, false
+local bringLock = false
+
+-- Live Local Time Engine
+local function updateClock()
+    local t = os.date("*t") :: os.dateTable
+    TimeLabel.Text = string.format("Date: %04d-%02d-%02d | Time: %02d:%02d:%02d", t.year, t.month, t.day, t.hour, t.min, t.sec)
+end
+
+task.spawn(function()
+    while task.wait(1) do
+        pcall(updateClock)
+    end
+end)
+updateClock()
+
+local function isTIFRBoss(v: Model): boolean
+    if not v:IsA("Model") or v == LocalPlayer.Character then return false end
+    if Players:GetPlayerFromCharacter(v) then return false end
+    local hum = v:FindFirstChildOfClass("Humanoid")
+    local rp = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Torso")
+    if not hum or not rp or hum.Health <= 0 then return false end
+
+    local name = v.Name:lower()
+    local keywords = {"flinger", "asclepius", "maximus", "impasta", "consumer", "derp", "trollface", "boss", "raid", "titan", "crazed"}
+    for _, kw in ipairs(keywords) do
+        if name:find(kw) then return true end
+    end
+    return hum.MaxHealth >= 1500 or hum.Health >= 1500
+end
+
+local function getBosses(): {Model}
+    local list = {}
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("Model") and isTIFRBoss(v) then
+            table.insert(list, v)
+        end
+    end
+    return list
+end
+
+local function clearPlatform()
+    pcall(function()
+        if bringPlt and bringPlt.Parent then bringPlt:Destroy() end
+        bringPlt = nil
+    end)
+end
+
+local function releaseBoss(boss: Model?)
+    pcall(function()
+        if boss and boss.Parent then
+            local hum = boss:FindFirstChildOfClass("Humanoid")
+            if hum then hum.PlatformStand = false end
+            local rp = boss:FindFirstChild("HumanoidRootPart") or boss:FindFirstChild("Torso")
+            if rp then rp.AssemblyLinearVelocity = Vector3.new(0, 0, 0) end
+        end
+    end)
+end
+
+-- Boss Spectate Handlers
+SRF.MouseButton1Click:Connect(function()
+    bossList = getBosses() sIdx = 1
+    if #bossList > 0 then
+        sBoss = bossList[sIdx]
+        ST.Text = sBoss.Name
+        SL.Text = "Spectating Boss: " .. sBoss.Name
+    else
+        sBoss = nil
+        ST.Text = "No Bosses"
+        SL.Text = "Spectating Boss: None"
+    end
+end)
+
+ST.MouseButton1Click:Connect(function()
+    bossList = getBosses()
+    if #bossList == 0 then return end
+    sIdx += 1
+    if sIdx > #bossList then sIdx = 1 end
+    sBoss = bossList[sIdx]
+    if sBoss then
+        ST.Text = sBoss.Name
+        SL.Text = "Spectating Boss: " .. sBoss.Name
+    end
+end)
+
+SClr.MouseButton1Click:Connect(function()
+    sBoss = nil
+    ST.Text = "Select Boss"
+    SL.Text = "Spectating Boss: None"
+    pcall(function()
+        Camera.CameraSubject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    end)
+end)
+
+-- Boss Target / Bring Handlers
+BRF.MouseButton1Click:Connect(function()
+    bossList = getBosses() bIdx = 1
+    if #bossList > 0 then
+        bBoss = bossList[bIdx]
+        BST.Text = bBoss.Name
+        BL.Text = "Target: " .. bBoss.Name
+    else
+        bBoss = nil
+        BST.Text = "No Bosses"
+        BL.Text = "Target: None"
+    end
+end)
+
+BST.MouseButton1Click:Connect(function()
+    bossList = getBosses()
+    if #bossList == 0 then return end
+    bIdx += 1
+    if bIdx > #bossList then bIdx = 1 end
+    bBoss = bossList[bIdx]
+    if bBoss then
+        BST.Text = bBoss.Name
+        BL.Text = "Target: " .. bBoss.Name
+    end
+end)
+
+BPAll.MouseButton1Click:Connect(function()
+    if bringLock then return end bringLock = true
+    bringAllActive = not bringAllActive
+    if bringAllActive then
+        bringSelActive = false
+        BPSel.Text = "Bring Selected Boss: [ OFF ]"
+        BPSel.BackgroundColor3 = Color3.fromRGB(60, 20, 60)
+    end
+    BPAll.Text = "Bring All Bosses: [ " .. (bringAllActive and "ON" or "OFF") .. " ]"
+    BPAll.BackgroundColor3 = bringAllActive and Color3.fromRGB(80, 20, 80) or Color3.fromRGB(40, 20, 60)
+    clearPlatform()
+    if bringAllActive then
+        bringPlt = Instance.new("Part", Workspace)
+        bringPlt.Name = "AXBossPlatform"
+        bringPlt.Size = Vector3.new(120, 5, 120)
+        bringPlt.Position = Vector3.new(0, 5000, 0)
+        bringPlt.Anchored = true
+        bringPlt.CanCollide = true
+        bringPlt.Color = Color3.fromRGB(150, 50, 150)
+        pcall(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 5006, 15)
+            end
+        end)
+    end
+    task.delay(0.3, function() bringLock = false end)
+end)
+
+BPSel.MouseButton1Click:Connect(function()
+    if bringLock then return end bringLock = true
+    bringSelActive = not bringSelActive
+    if bringSelActive then
+        bringAllActive = false
+        BPAll.Text = "Bring All Bosses: [ OFF ]"
+        BPAll.BackgroundColor3 = Color3.fromRGB(40, 20, 60)
+    end
+    BPSel.Text = "Bring Selected Boss: [ " .. (bringSelActive and "ON" or "OFF") .. " ]"
+    BPSel.BackgroundColor3 = bringSelActive and Color3.fromRGB(80, 20, 80) or Color3.fromRGB(60, 20, 60)
+    clearPlatform()
+    if bringSelActive then
+        bringPlt = Instance.new("Part", Workspace)
+        bringPlt.Name = "AXBossPlatform"
+        bringPlt.Size = Vector3.new(120, 5, 120)
+        bringPlt.Position = Vector3.new(0, 5000, 0)
+        bringPlt.Anchored = true
+        bringPlt.CanCollide = true
+        bringPlt.Color = Color3.fromRGB(150, 50, 150)
+        pcall(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 5006, 15)
+            end
+        end)
+    else
+        releaseBoss(bBoss)
+    end
+    task.delay(0.3, function() bringLock = false end)
+end)
+
+-- FE Staff Checker
+local function checkPlayerForStaff(player: Player)
+    if player == LocalPlayer then return end
+    if KNOWN_STAFF[player.UserId] or KNOWN_STAFF[player.Name] then
+        local rankName = KNOWN_STAFF[player.UserId] or KNOWN_STAFF[player.Name]
+        sendNotification("⚠️ STAFF DETECTED: " .. player.Name .. " (" .. rankName .. ")", Color3.fromRGB(255, 0, 0), 10)
+        return
+    end
+
+    task.spawn(function()
+        local success, role = pcall(function() return player:GetRoleInGroup(TIFR_GROUP_ID) end)
+        local success2, rank = pcall(function() return player:GetRankInGroup(TIFR_GROUP_ID) end)
+
+        if success and rank and rank >= 10 then
+            sendNotification("⚠️ STAFF JOINED: " .. player.Name .. " [" .. tostring(role) .. "]", Color3.fromRGB(255, 0, 0), 10)
+        end
+    end)
+end
+
+local function scanServerStaff()
+    local found = 0
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer then
+            checkPlayerForStaff(p)
+            found += 1
+        end
+    end
+    sendNotification("Staff Scan Completed (" .. found .. " players checked)", Color3.fromRGB(50, 255, 50), 3)
+end
+
+FCheck.MouseButton1Click:Connect(scanServerStaff)
+Players.PlayerAdded:Connect(checkPlayerForStaff)
+scanServerStaff()
+
+-- Main Engine Loop
+RunService.Heartbeat:Connect(function()
+    pcall(function()
+        local character = LocalPlayer.Character
+        local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+
+        if sBoss and sBoss.Parent then
+            local hum = sBoss:FindFirstChildOfClass("Humanoid")
+            if hum then Camera.CameraSubject = hum end
+        end
+
+        if (bringAllActive or bringSelActive) then
+            if not bringPlt or not bringPlt.Parent then
+                bringPlt = Instance.new("Part", Workspace)
+                bringPlt.Name = "AXBossPlatform"
+                bringPlt.Size = Vector3.new(120, 5, 120)
+                bringPlt.Position = Vector3.new(0, 5000, 0)
+                bringPlt.Anchored = true
+                bringPlt.CanCollide = true
+                bringPlt.Color = Color3.fromRGB(150, 50, 150)
+            end
+            if rootPart and (rootPart.Position - bringPlt.Position).Magnitude > 70 then
+                rootPart.CFrame = CFrame.new(bringPlt.Position + Vector3.new(0, 6, 0))
+            end
+        end
+
+        if bringAllActive and bringPlt then
+            local activeBosses = getBosses()
+            local idx = 0
+            for _, v in ipairs(activeBosses) do
+                local hum = v:FindFirstChildOfClass("Humanoid")
+                local rp = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Torso") or v:FindFirstChild("Head")
+                if hum and rp and hum.Health > 0 then
+                    idx += 1
+                    local angle = idx * (math.pi * 2 / math.max(#activeBosses, 1))
+                    local offset = Vector3.new(math.cos(angle) * 12, 4, math.sin(angle) * 12)
+                    rp.CFrame = bringPlt.CFrame + offset
+                    rp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                    rp.Anchored = true
+                    hum.PlatformStand = true
+                end
+            end
+        end
+
+        if bringSelActive and bringPlt and bBoss and bBoss.Parent then
+            local hum = bBoss:FindFirstChildOfClass("Humanoid")
+            local rp = bBoss:FindFirstChild("HumanoidRootPart") or bBoss:FindFirstChild("Torso") or bBoss:FindFirstChild("Head")
+            if hum and rp and hum.Health > 0 then
+                rp.CFrame = bringPlt.CFrame + Vector3.new(0, 4, 0)
+                rp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                rp.Anchored = true
+                hum.PlatformStand = true
+            end
+        end
+    end)
+end)
+
+print("[AX]: TIFR Master Suite Initialized.")
